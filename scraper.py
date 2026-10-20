@@ -1,4 +1,23 @@
+from __future__ import annotations
+
+import csv
+import json
+import logging
+import random
+import re
+import sqlite3
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import urljoin, urlparse, urlencode
+from urllib.robotparser import RobotFileParser
+
+import requests
+from bs4 import BeautifulSoup
+
+
 """DSC2107 Group 8: responsible itch.io Top Sellers scraper.
+"""
 """
 PROJECT: WEB SCRAPER FOR GAME LISTINGS
 
@@ -20,7 +39,7 @@ used for further data analysis.
 
 NOTE:
 The number of records collected depends on the available
-listings and whether the scraping process completes successfully.
+listings and whether the scraping process completes successfully."""
 """
 The script collects public listing-card fields only. It does not log in, visit"
 search/checkout/download routes, bypass blocks, or use proxies to evade limits.
@@ -31,22 +50,7 @@ Run locally with: python scraper.py
 # They help us download web pages, extract information,
 # clean data, save files, and store information in a database.
 
-from __future__ import annotations
 
-import csv
-import json
-import logging
-import random
-import re
-import sqlite3
-import time
-from datetime import datetime, timezone
-from pathlib import Path
-from urllib.parse import urljoin, urlparse, urlencode
-from urllib.robotparser import RobotFileParser
-
-import requests
-from bs4 import BeautifulSoup
 
 # PROJECT CONFIGURATION
 # This section contains the main settings for the scraper.
