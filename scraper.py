@@ -1,9 +1,36 @@
 """DSC2107 Group 8: responsible itch.io Top Sellers scraper.
+"""
+PROJECT: WEB SCRAPER FOR GAME LISTINGS
 
-The script collects public listing-card fields only. It does not log in, visit
+PURPOSE:
+To collect information about games listed on itch.io
+and prepare the information for data analysis.
+
+HOW THE PROGRAM WORKS:
+1. Connects to the website and requests pages.
+2. Finds game listings and extracts their details.
+3. Removes duplicate game records.
+4. Saves the original data in CSV and JSON formats.
+5. Cleans price information.
+6. Saves the cleaned data and records in an SQLite database.
+
+EXPECTED RESULT:
+A collection of game records that can be examined and
+used for further data analysis.
+
+NOTE:
+The number of records collected depends on the available
+listings and whether the scraping process completes successfully.
+"""
+The script collects public listing-card fields only. It does not log in, visit"
 search/checkout/download routes, bypass blocks, or use proxies to evade limits.
 Run locally with: python scraper.py
 """
+# IMPORTING LIBRARIES
+# These libraries provide the tools needed for our web scraper.
+# They help us download web pages, extract information,
+# clean data, save files, and store information in a database.
+
 from __future__ import annotations
 
 import csv
@@ -21,24 +48,30 @@ from urllib.robotparser import RobotFileParser
 import requests
 from bs4 import BeautifulSoup
 
-# Configuration
-
+# PROJECT CONFIGURATION
+# This section contains the main settings for the scraper.
+# It specifies the website to visit, the number of records
+# we want to collect, request limits, and delays between requests.
 BASE_URL = "https://itch.io/games/top-sellers"
 ROBOTS_URL = "https://itch.io/robots.txt"
 USER_AGENT = "DSC2107-Group8-Course-Project (wmubs4@gmail.com)"
+# Limits and delays
 TARGET_COUNT = 500                         # Assignment asks for top 500 items.
 MAX_REQUESTS_PER_RUN = 1000                # Assignment's approximate daily cap.
 MIN_DELAY_SECONDS = 2.0                    # Assignment requires 2–5 seconds.
 MAX_DELAY_SECONDS = 5.0
 MAX_RETRIES = 3
+# File and folder paths
 ROOT = Path(__file__).resolve().parent
 RAW_DIR = ROOT / "data" / "raw"
 CLEAN_DIR = ROOT / "data" / "cleaned"
 DB_PATH = ROOT / "data" / "group8_itchio.sqlite"
 LOG_PATH = ROOT / "logs" / "scraper.log"
 
-# Logging
-
+# LOGGING AND SESSION SETUP
+# Logging records what the program is doing and helps us
+# identify errors. The session manages our website requests
+# and allows us to reuse connection settings.
 # Log progress and failures to both the terminal and a file for the report.
 LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
@@ -52,10 +85,16 @@ logging.basicConfig(
 # A session reuses the connection. A clear User-Agent identifies the project.
 session = requests.Session()
 session.headers.update({"User-Agent": USER_AGENT, "Accept-Language": "en-US,en;q=0.9"})
+# Tracking request
 request_count = 0
 last_request_at = 0.0
 
+# REQUEST DELAYS AND WEBSITE RULES
+# The delay helps prevent requests from being sent too quickly.
+# Website access rules are checked to help determine whether
+# the scraper is allowed to access the requested pages.
 
+#control of the delay between HTTP requests 
 def wait_between_requests() -> None:
     """Wait 2–5 seconds between requests, including requests to detail pages."""
     global last_request_at
@@ -65,7 +104,7 @@ def wait_between_requests() -> None:
         if elapsed < required_delay:
             time.sleep(required_delay - elapsed)
 
-
+# Check the sites crawler instructions 
 def check_robots() -> RobotFileParser:
     """Read robots.txt and stop if the target listing route is disallowed."""
     parser = RobotFileParser()
@@ -83,7 +122,11 @@ def check_robots() -> RobotFileParser:
     logging.info("robots.txt checked: target listing URL is allowed for this User-Agent.")
     return parser
 
-
+# WEB PAGE REQUEST HANDLING
+# This function requests a web page and checks whether the
+# request is allowed. It handles connection errors and retries
+# failed requests when appropriate, then returns the page
+# content for further processing.
 def get_page(url: str) -> BeautifulSoup:
     """Fetch and parse one permitted HTML page with retries and back-off."""
     global request_count, last_request_at
@@ -127,7 +170,9 @@ def get_page(url: str) -> BeautifulSoup:
                 time.sleep(2 ** attempt)
     raise RuntimeError(f"Could not fetch {url}: {last_error}")
 
-
+# TEXT CLEANING
+# This function removes unnecessary spaces and formats text
+# so that the collected information is easier to read and use.
 def clean_text(node) -> str | None:
     """Return readable text from an HTML element, or None for a missing field."""
     if node is None:
@@ -135,7 +180,10 @@ def clean_text(node) -> str | None:
     value = node.get_text(" ", strip=True)
     return value or None
 
-
+# GAME INFORMATION EXTRACTION
+# This function reads one game listing and extracts its details,
+# such as the title, developer, price, genre, platforms, and URL.
+# The extracted details are organized into a dictionary.
 def parse_game_card(card, rank: int, listing_url: str, scraped_at: str) -> dict:
     """Extract the assignment fields from one game card in the listing page."""
     # Title links are commonly marked .title; use fallbacks if the layout changes.

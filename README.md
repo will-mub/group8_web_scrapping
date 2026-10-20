@@ -1,4 +1,11 @@
-# DSC2107 Data Mining & Wrangling — Group 8
+﻿# DSC2107 Data Mining & Wrangling — Group 8
+Group members
+• John baker Hall Kasujja
+• Mubbale Wilson
+• Nankunda Rowena
+• Namugga Daniella
+• Cherissa Iteriteka 
+• Apio Lewis
 
 This project contains the Day 1 warm-up and a daily scraper for the assigned itch.io Top Sellers page.
 
@@ -16,7 +23,6 @@ This project contains the Day 1 warm-up and a daily scraper for the assigned itc
 ```bash
 python -m venv .venv
 # Windows: .venv\Scripts\activate
-# macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
