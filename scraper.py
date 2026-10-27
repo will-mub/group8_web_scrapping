@@ -1,21 +1,3 @@
-from __future__ import annotations
-
-import csv
-import json
-import logging
-import random
-import re
-import sqlite3
-import time
-from datetime import datetime, timezone
-from pathlib import Path
-from urllib.parse import urljoin, urlparse, urlencode
-from urllib.robotparser import RobotFileParser
-
-import requests
-from bs4 import BeautifulSoup
-
-
 """DSC2107 Group 8: responsible itch.io Top Sellers scraper.
 """
 """
@@ -49,6 +31,27 @@ Run locally with: python scraper.py
 # These libraries provide the tools needed for our web scraper.
 # They help us download web pages, extract information,
 # clean data, save files, and store information in a database.
+
+
+from __future__ import annotations
+
+import csv
+import json
+import logging
+import random
+import re
+import sqlite3
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import urljoin, urlparse, urlencode
+from urllib.robotparser import RobotFileParser
+
+import requests
+from bs4 import BeautifulSoup
+
+
+
 
 
 
